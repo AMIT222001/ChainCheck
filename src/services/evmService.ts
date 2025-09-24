@@ -21,11 +21,13 @@ export async function getTokenBalance(
   const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
 
   // Fetch raw balance (in smallest unit, e.g. wei)
-  const rawBalance: bigint = await tokenContract.balanceOf(wallet);
-
-  // Fetch token decimals to convert to human-readable number
-  const decimals: number = await tokenContract.decimals();
-
+  // giving balance in wei and bigint storing in string format
+  const rawBalance: string = await tokenContract.balanceOf(wallet);
+console.log(String(await tokenContract.balanceOf(wallet)));
+  // Fetch token decimals to convert to human-readable number giving value in bigint but storing them in string
+  const decimals: string = await tokenContract.decimals();
+  console.log(String(await tokenContract.decimals()));
+  
   // Convert balance to a normal decimal number
   const humanReadable = Number(ethers.formatUnits(rawBalance, decimals));
 

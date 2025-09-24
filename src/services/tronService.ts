@@ -24,8 +24,13 @@ try {
 
     // Fetch balance
     const balance = await contract.balanceOf(wallet).call();
+    console.log(typeof(balance))
+    console.log((balance))
     const decimals = await contract.decimals().call();
-    const humanReadable = Number(balance) / (10 ** Number(decimals));
+    console.log(typeof(decimals))
+    console.log((decimals))
+    
+    const humanReadable:string = String(Number(balance) / (10 ** Number(decimals)));
 
     // Return as JSON
  return humanReadable;

@@ -12,7 +12,7 @@ import {
 export async function getSPLTokenBalance(
   walletAddress: string,
   tokenAddress: string
-): Promise<number> {
+): Promise<string> {
   try {
     const connection = new Connection("https://api.mainnet-beta.solana.com");
     const owner = new PublicKey(walletAddress);
@@ -23,10 +23,10 @@ export async function getSPLTokenBalance(
       owner,
       { mint } as TokenAccountsFilter
     );
-    
+  
     // Check if any token accounts exist
     if (tokenAccounts.value.length === 0) {
-      return 0; // No token accounts found for this mint
+      return "0"; // No token accounts found for this mint
     }
     
     let totalBalance = 0;
@@ -34,7 +34,10 @@ export async function getSPLTokenBalance(
     // Sum up all token accounts for this mint (in case there are multiple)
     for (const tokenAccount of tokenAccounts.value) {
       const account = tokenAccount.account;
-      
+      console.log(account.data.parsed.info.tokenAmount.uiAmount);
+      // console.log(account.data.parsed.info.tokenAmount.uiAmountString);
+      console.log(account.data.parsed.info.tokenAmount.decimals);
+      console.log(account.data.parsed.info.tokenAmount.amount);
       // Access the parsed data safely
       if (
         account.data &&
@@ -46,7 +49,8 @@ export async function getSPLTokenBalance(
       }
     }
     
-    return totalBalance;
+    console.log(totalBalance);
+    return String(totalBalance);
   } catch (error) {
     console.error("Error fetching SPL token balance:", error);
     throw error;
@@ -73,35 +77,3 @@ export async function getSOLBalance(walletAddress: string): Promise<number> {
  * Alternative method using getAssociatedTokenAddress for better performance
  * when you know the wallet only has one associated token account
  */
-export async function getSPLTokenBalanceATA(
-  walletAddress: string,
-  tokenAddress: string
-): Promise<number> {
-  try {
-    const connection = new Connection("https://api.mainnet-beta.solana.com");
-    const owner = new PublicKey(walletAddress);
-    const mint = new PublicKey(tokenAddress);
-    
-    // Get the associated token account address
-    const associatedTokenAccount = await getAssociatedTokenAddress(mint, owner);
-    
-    try {
-      // Get the token account info
-      const accountInfo = await getAccount(connection, associatedTokenAccount);
-      
-      // Get mint info to calculate the correct decimal places
-      const mintInfo = await getMint(connection, mint);
-      
-      // Convert raw amount to human-readable amount
-      const balance = Number(accountInfo.amount) / Math.pow(10, mintInfo.decimals);
-      
-      return balance;
-    } catch (accountError) {
-      // Account doesn't exist, return 0
-      return 0;
-    }
-  } catch (error) {
-    console.error("Error fetching SPL token balance (ATA method):", error);
-    throw error;
-  }
-}

@@ -4,6 +4,7 @@ export async function getBTCBalance(address:string) {
   try {
     const url = `https://api.blockcypher.com/v1/btc/main/addrs/${address}/balance`;
     const response = await axios.get(url);
+    console.log(typeof(response.data.balance))
     return {
       address,
       balanceBTC: response.data.final_balance / 1e8,
